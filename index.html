@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Something Close to My Heart 🎤</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .bg-circles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; z-index: 0; pointer-events: none; }
+  .circle { position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.1); animation: float 20s infinite ease-in-out; }
+  .circle:nth-child(1) { width: 80px; height: 80px; left: 10%; animation-duration: 25s; }
+  .circle:nth-child(2) { width: 120px; height: 120px; right: 15%; top: 20%; animation-duration: 30s; animation-delay: 2s; }
+  .circle:nth-child(3) { width: 60px; height: 60px; left: 50%; top: 60%; animation-duration: 20s; animation-delay: 4s; }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+    25% { transform: translateY(-100px) translateX(50px); opacity: 0.5; }
+    50% { transform: translateY(-200px) translateX(-50px); opacity: 0.3; }
+    75% { transform: translateY(-100px) translateX(100px); opacity: 0.5; }
+  }
+
+  .container { max-width: 1000px; margin: 0 auto; padding: 20px; position: relative; z-index: 1; }
+  .form-container { background: rgba(255, 255, 255, 0.95); border-radius: 20px; padding: 40px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); backdrop-filter: blur(10px); margin-bottom: 20px; }
+  h1 { text-align: center; color: #667eea; margin-bottom: 10px; font-size: 2.5rem; font-weight: 700; }
+  h2 { text-align: center; color: #764ba2; margin-bottom: 30px; font-size: 1.5rem; font-weight: 500; }
+
+  .form-group { margin-bottom: 25px; }
+  label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; font-size: 1.1rem; }
+  input, select { width: 100%; padding: 12px 16px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1rem; transition: all 0.3s ease; background: white; }
+  input:focus, select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+
+  button { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 14px 32px; border-radius: 10px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: inline-block; margin-top: 10px; }
+  button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(102,126,234,0.4); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .btn-secondary { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
+  .btn-success { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
+
+  .stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr)); gap: 10px; margin-bottom: 10px; }
+  .stat-box { background: rgba(255,255,255,0.95); padding: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; }
+  .stat-label { font-size: 0.9rem; color: #666; margin-bottom: 5px; }
+  .stat-value { font-size: 1.5rem; font-weight: 700; color: #667eea; }
+  .stat-value.warning { color: #f5576c; }
+  .stat-value.success { color: #00c896; }
+
+  .speech-container { background: rgba(255,255,255,0.98); border-radius: 15px; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); margin-bottom: 20px; min-height: 600px; }
+  .speech-header { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #e0e0e0; }
+  .speech-title { margin-bottom: 30px; }
+  .speech-label { font-weight: 600; color: #667eea; margin-bottom: 5px; }
+  .speech-input { width: 100%; padding: 10px; border: 1px solid #e0e0e0; border-radius: 8px; font-size: 1rem; }
+  .speech-body { width: 100%; min-height: 500px; padding: 20px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 1.1rem; line-height: 1.8; resize: vertical; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: white; }
+  .speech-body:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+
+  .action-buttons { display: flex; gap: 10px; margin-top: 20px; }
+  .action-buttons button { flex: 1; }
+
+  .scorecard { background: rgba(255,255,255,0.95); color: #333; padding: 40px; border-radius: 20px; margin-top: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); }
+  .scorecard h3 { margin-bottom: 20px; font-size: 1.8rem; color: #667eea; text-align: center; }
+  .scorecard p { margin-bottom: 12px; font-size: 1.1rem; padding: 10px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea; }
+
+  .validation-msg { color: #f5576c; font-size: 0.9rem; margin-top: 5px; }
+  .hidden { display: none; }
+  .word-count-warning { background: #fff3cd; border: 2px solid #ffc107; color: #856404; padding: 15px; border-radius: 10px; margin-bottom: 15px; text-align: center; font-weight: 600; }
+
+  @media (max-width: 768px) {
+    .container { padding: 10px; }
+    .form-container, .speech-container { padding: 20px; }
+    h1 { font-size: 1.8rem; }
+    h2 { font-size: 1.2rem; }
+    .stats-container { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-circles">
+  <div class="circle"></div>
+  <div class="circle"></div>
+  <div class="circle"></div>
+</div>
+
+<div class="container">
+  <!-- Initial Form -->
+  <div id="initialForm" class="form-container">
+    <h1>SRM Valliammai Engineering College</h1>
+    <h2>Short Speech Tool</h2>
+
+    <div class="form-group">
+      <label for="studentName">👤 Your Name:</label>
+      <input type="text" id="studentName" placeholder="Enter your name">
+      <div id="nameError" class="validation-msg hidden">Please enter your name</div>
+    </div>
+
+    <div class="form-group">
+      <label for="department">🏫 Department:</label>
+      <select id="department">
+        <option value="">-- Select Department --</option>
+        <option value="Cyber Security">Cyber Security</option>
+        <option value="CSE-1">CSE-1</option>
+        <option value="CSE-2">CSE-2</option>
+        <option value="CSE-3">CSE-3</option>
+        <option value="Mechanical Engineering">Mechanical Engineering</option>
+        <option value="ECE-1">ECE-1</option>
+        <option value="ECE-2">ECE-2</option>
+        <option value="ECE-3">ECE-3</option>
+        <option value="AI DS-1">AI DS-1</option>
+        <option value="AI DS-2">AI DS-2</option>
+        <option value="Civil">Civil</option>
+        <option value="Agri">Agri</option>
+        <option value="EEE">EEE</option>
+        <option value="EIE">EIE</option>
+        <option value="Medical Electronics">Medical Electronics</option>
+        <option value="IT-1">IT-1</option>
+        <option value="IT-2">IT-2</option>
+      </select>
+      <div id="deptError" class="validation-msg hidden">Please select your department</div>
+    </div>
+
+    <button onclick="startWriting()">Start Writing Speech 🎤</button>
+  </div>
+
+  <!-- Speech Writing Section -->
+  <div id="speechSection" class="hidden">
+    <div class="stats-container">
+      <div class="stat-box">
+        <div class="stat-label">⏱️ Time Elapsed</div>
+        <div class="stat-value" id="timerDisplay">0m 0s</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">📝 Word Count</div>
+        <div class="stat-value" id="wordCount">0 / 300</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-label">🚫 Copy/Paste Attempts</div>
+        <div class="stat-value warning" id="pasteCounter">0</div>
+      </div>
+    </div>
+
+    <div id="wordWarning" class="word-count-warning hidden">
+      ⚠️ Minimum 300 words required. Keep typing! Who, What, When, Where, Why, How, Past, Present, Future, Be Specific, Opposites, Maximise the Best outcome for yourself!
+    </div>
+
+    <div class="speech-container">
+      <div class="speech-header">
+        <div class="speech-title">
+          <div class="speech-label">Something Close to My Heart:</div>
+          <input type="text" class="speech-input" id="letterSubject" placeholder="Speech title"
+                 onpaste="return false;" oncopy="return false;" oncut="return false;">
+        </div>
+      </div>
+
+      <textarea 
+        class="speech-body" 
+        id="letterBody" 
+        placeholder="Write your short speech here... (Minimum 300 words required)"
+        oninput="handleTextInput(this, event); updateWordCount();"
+        onpaste="return false;"
+        oncopy="return false;"
+        oncut="return false;"
+        ondrop="return false;"
+        autocomplete="off"
+        spellcheck="true"
+      ></textarea>
+    </div>
+
+    <div class="action-buttons">
+      <button onclick="submitLetter()">Submit Speech 📮</button>
+    </div>
+
+    <div id="submitError" class="validation-msg hidden" style="text-align: center; margin-top: 10px; font-size: 1rem;"></div>
+  </div>
+
+  <!-- Scorecard -->
+  <div id="scorecard" class="hidden scorecard">
+    <h3>📊 Submission Summary</h3>
+    <div id="scorecardContent"></div>
+    <div class="action-buttons">
+      <button onclick="downloadPDF()" class="btn-success">Download PDF 📄</button>
+      <button onclick="resetForm()" class="btn-secondary">Write New Speech 🔄</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let studentName = "";
+let department = "";
+let startTime = 0;
+let timerInterval = null;
+let pasteAttempts = 0;
+const MIN_WORDS = 300;
+
+document.addEventListener('copy', function(e){ e.preventDefault(); pasteAttempts++; updatePasteCounter(); return false; });
+document.addEventListener('paste', function(e){ e.preventDefault(); pasteAttempts++; updatePasteCounter(); return false; });
+document.addEventListener('cut', function(e){ e.preventDefault(); pasteAttempts++; updatePasteCounter(); return false; });
+document.addEventListener('contextmenu', function(e){ e.preventDefault(); return false; });
+document.addEventListener('keydown', function(e){
+  if ((e.ctrlKey || e.metaKey) && (e.key==='c'||e.key==='v'||e.key==='x'||e.key==='a')) {
+    e.preventDefault();
+    if(e.key==='v'||e.key==='c'||e.key==='x'){ pasteAttempts++; updatePasteCounter(); }
+    return false;
+  }
+});
+
+function startWriting() {
+  const nameInput = document.getElementById('studentName').value.trim();
+  const deptInput = document.getElementById('department').value.trim();
+
+  if(!nameInput){ document.getElementById('nameError').classList.remove('hidden'); return; } else { document.getElementById('nameError').classList.add('hidden'); }
+  if(!deptInput){ document.getElementById('deptError').classList.remove('hidden'); return; } else { document.getElementById('deptError').classList.add('hidden'); }
+
+  studentName = nameInput;
+  department = deptInput;
+
+  document.getElementById('initialForm').classList.add('hidden');
+  document.getElementById('speechSection').classList.remove('hidden');
+
+  startTimer();
+}
+
+function startTimer(){
+  startTime = Date.now();
+  timerInterval = setInterval(()=>{
+    const diff = Date.now() - startTime;
+    const minutes = Math.floor(diff/60000);
+    const seconds = Math.floor((diff%60000)/1000);
+    document.getElementById('timerDisplay').innerText = `${minutes}m ${seconds}s`;
+  }, 1000);
+}
+
+function stopTimer(){ clearInterval(timerInterval); }
+function updatePasteCounter(){ document.getElementById('pasteCounter').innerText = pasteAttempts; }
+
+function handleTextInput(textarea, event){
+  if(event.inputType === 'insertFromPaste'){ pasteAttempts++; updatePasteCounter(); textarea.value=''; }
+}
+
+function updateWordCount(){
+  const text = document.getElementById('letterBody').value.trim();
+  const wordCount = text.length>0 ? text.split(/\s+/).filter(w=>w.length>0).length : 0;
+  document.getElementById('wordCount').innerText = `${wordCount} / ${MIN_WORDS}`;
+  if(wordCount<MIN_WORDS){ document.getElementById('wordWarning').classList.remove('hidden'); } else { document.getElementById('wordWarning').classList.add('hidden'); }
+}
+
+function submitLetter(){
+  const title = document.getElementById('letterSubject').value.trim();
+  const body = document.getElementById('letterBody').value.trim();
+  const wordCount = body.length>0 ? body.split(/\s+/).filter(w=>w.length>0).length : 0;
+
+  if(!title || !body){ document.getElementById('submitError').innerText="Please fill in all fields"; document.getElementById('submitError').classList.remove('hidden'); return; } else { document.getElementById('submitError').classList.add('hidden'); }
+  if(wordCount < MIN_WORDS){ document.getElementById('submitError').innerText=`Speech must have at least ${MIN_WORDS} words`; document.getElementById('submitError').classList.remove('hidden'); return; } else { document.getElementById('submitError').classList.add('hidden'); }
+
+  stopTimer();
+  showScorecard(title, body, wordCount);
+
+  // Google Sheets Payload
+  const totalTimeSeconds = Math.floor((Date.now() - startTime)/1000);
+  const fullLetter = body;
+
+  const payload = {
+    studentName: studentName,
+    correct: "25",
+    wrong: "0",
+    totalTime: totalTimeSeconds,
+    department: department,
+    highestStreak: "ELLL 4",
+    pasteAttempts: pasteAttempts,
+    wordCount: wordCount,
+    speechContent: fullLetter,
+    title: title
+  };
+
+  fetch("https://script.google.com/macros/s/AKfycbxA0lRkERWFt2cYfmm04IQioaG4-21k5VFF5CFKP30zyVaJXM5_27PL3v8JIZEweK3u/exec", {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+}
+
+function showScorecard(title, body, wordCount){
+  document.getElementById('speechSection').classList.add('hidden');
+  const contentDiv = document.getElementById('scorecardContent');
+  contentDiv.innerHTML = `
+    <p><strong>📝 Speaker:</strong> ${studentName}</p>
+    <p><strong>🏫 Department:</strong> ${department}</p>
+    <p><strong>🗒️ Title:</strong> ${title}</p>
+    <p><strong>🕒 Time Taken:</strong> ${document.getElementById('timerDisplay').innerText}</p>
+    <p><strong>🔢 Word Count:</strong> ${wordCount}</p>
+    <p><strong>🚫 Copy/Paste Attempts:</strong> ${pasteAttempts}</p>
+    <p><strong>🗣️ Speech Content:</strong><br>${body.replace(/\n/g,'<br>')}</p>
+  `;
+  document.getElementById('scorecard').classList.remove('hidden');
+}
+
+function downloadPDF(){
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+  const margin = 15;
+  let yPos = 20;
+
+  const title = document.getElementById('letterSubject').value.trim();
+  const body = document.getElementById('letterBody').value.trim();
+  const wordCount = body.length>0 ? body.split(/\s+/).filter(w=>w.length>0).length : 0;
+
+  doc.setFontSize(16);
+  doc.text('SRM Valliammai Engineering College, Department of English', margin, yPos); yPos+=10;
+  doc.setFontSize(14);
+  doc.text(`Speaker: ${studentName}`, margin, yPos); yPos+=8;
+  doc.text(`Department: ${department}`, margin, yPos); yPos+=8;
+  doc.text(`Title: ${title}`, margin, yPos); yPos+=8;
+  doc.text(`Word Count: ${wordCount}`, margin, yPos); yPos+=8;
+  doc.text(`Time Taken: ${document.getElementById('timerDisplay').innerText}`, margin, yPos); yPos+=8;
+  doc.text(`Copy/Paste Attempts: ${pasteAttempts}`, margin, yPos); yPos+=10;
+  doc.text('Speech Content:', margin, yPos); yPos+=8;
+
+  const lines = doc.splitTextToSize(body, 180);
+  doc.text(lines, margin, yPos);
+  doc.save(`${studentName.replace(/\s+/g,'_')}_Speech.pdf`);
+}
+
+function resetForm(){
+  pasteAttempts = 0;
+  document.getElementById('pasteCounter').innerText = pasteAttempts;
+  document.getElementById('letterBody').value = '';
+  document.getElementById('letterSubject').value = '';
+  document.getElementById('wordCount').innerText = `0 / ${MIN_WORDS}`;
+  document.getElementById('scorecard').classList.add('hidden');
+  document.getElementById('initialForm').classList.remove('hidden');
+  document.getElementById('speechSection').classList.add('hidden');
+}
+</script>
+</body>
+</html>
