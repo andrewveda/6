@@ -266,7 +266,13 @@ function stopTimer(){ clearInterval(timerInterval); }
 function updatePasteCounter(){ document.getElementById('pasteCounter').innerText = pasteAttempts; }
 
 function handleTextInput(textarea, event){
-  if(event.inputType === 'insertFromPaste'){ pasteAttempts++; updatePasteCounter(); textarea.value=''; }
+  const inserted = event.data || "";
+  // Block paste or large inserted chunks (>10 chars)
+  if (inserted.length > 10 || event.inputType === 'insertFromPaste') {
+    pasteAttempts++;
+    updatePasteCounter();
+    textarea.value = textarea.value.slice(0, -inserted.length); // undo large insert
+  }
 }
 
 function updateWordCount(){
